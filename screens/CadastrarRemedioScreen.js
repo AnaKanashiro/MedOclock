@@ -16,19 +16,6 @@ import { addRemedio } from "../dados/dadosRemedios";
 import { globalStyles } from "../styles/globalStyles";
 
 export default function CadastrarRemedioScreen({ navigation }) {
-    // Estados
-    const [nome, setNome] = useState("");
-    const [horarioInicial, setHorarioInicial] = useState(
-      roundTo15Minutes(new Date())
-    );
-    const [intervalo, setIntervalo] = useState(8);
-    const [periodo, setPeriodo] = useState(7);
-    const [quantidade, setQuantidade] = useState("");
-    const [unidade, setUnidade] = useState("un");
-    const [showTimePicker, setShowTimePicker] = useState(false);
-    const [showModal, setShowModal] = useState(false);
-    const [proximosHorarios, setProximosHorarios] = useState([]);
-
   // Arredonda o horário atual para o múltiplo de 15 minutos mais próximo
   const roundTo15Minutes = (date) => {
     const minutes = date.getMinutes();
@@ -48,6 +35,19 @@ export default function CadastrarRemedioScreen({ navigation }) {
     );
   };
 
+
+  const [nome, setNome] = useState("");
+  const [horarioInicial, setHorarioInicial] = useState(
+    roundTo15Minutes(new Date())
+  );
+  const [intervalo, setIntervalo] = useState(8);
+  const [periodo, setPeriodo] = useState(7);
+  const [quantidade, setQuantidade] = useState("");
+  const [unidade, setUnidade] = useState("un");
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [proximosHorarios, setProximosHorarios] = useState([]);
+
   // Calcula os próximos horários quando algum parâmetro muda
   useEffect(() => {
     calcularHorarios();
@@ -58,6 +58,7 @@ export default function CadastrarRemedioScreen({ navigation }) {
     const dataAtual = new Date();
     const horarioBase = roundTo15Minutes(horarioInicial);
 
+    // Calcula para o período especificado
     for (let dia = 0; dia < periodo; dia++) {
       let horarioDia = new Date(horarioBase);
       horarioDia.setDate(horarioBase.getDate() + dia);
@@ -83,7 +84,7 @@ export default function CadastrarRemedioScreen({ navigation }) {
     }
 
     const horariosOrdenados = horarios.sort((a, b) => a.data - b.data);
-    setProximosHorarios(horariosOrdenados.slice(0, 50));
+    setProximosHorarios(horariosOrdenados.slice(0, 25));
   };
 
   const handleCadastro = async () => {
@@ -284,7 +285,6 @@ export default function CadastrarRemedioScreen({ navigation }) {
             </View>
           </View>
         </Modal>
-        {/* Modal mantido igual */}
       </View>
     </ScrollView>
   );
