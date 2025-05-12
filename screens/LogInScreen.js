@@ -57,7 +57,7 @@ export default function LogInScreen({ navigation }) {
       {erro ? <Text style={globalStyles.erro}>{erro}</Text> : null}
 
       <TouchableOpacity style={globalStyles.botao} onPress={handleLogin}>
-        <Text style={globalStyles.textoBotao}>Entrar</Text>
+        <Text style={globalStyles.textoBotaoClaro}>Entrar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>

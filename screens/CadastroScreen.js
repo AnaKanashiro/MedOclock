@@ -92,7 +92,7 @@ export default function CadastroScreen({ navigation }) {
       <View style={styles.termosContainer}>
         <Switch value={aceitouTermos} onValueChange={setAceitouTermos} />
         <View style={styles.termosTextoContainer}>
-          <Text style={globalStyles.text}>Concordo com os </Text>
+          <Text style={globalStyles.textClaro}>Concordo com os </Text>
           <TouchableOpacity onPress={abrirTermosDeUso}>
             <Text style={styles.termosLink}> Termos de Uso e Política de Privacidade (LGPD)</Text>
           </TouchableOpacity>
@@ -102,7 +102,7 @@ export default function CadastroScreen({ navigation }) {
       {erro ? <Text style={globalStyles.erro}>{erro}</Text> : null}
 
       <TouchableOpacity style={globalStyles.botao} onPress={handleCadastro}>
-        <Text style={globalStyles.textoBotao}>Cadastrar</Text>
+        <Text style={globalStyles.textClaro}>Cadastrar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("LogIn")}>

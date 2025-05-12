@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
+  ScrollView,
   View,
   Text,
   TextInput,
@@ -7,13 +8,27 @@ import {
   StyleSheet,
   Modal,
   Alert,
-  Platform
-} from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import { addRemedio } from '../dados/dadosRemedios';
+  Platform,
+} from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import { addRemedio } from "../dados/dadosRemedios";
+import { globalStyles } from "../styles/globalStyles";
 
 export default function CadastrarRemedioScreen({ navigation }) {
+    // Estados
+    const [nome, setNome] = useState("");
+    const [horarioInicial, setHorarioInicial] = useState(
+      roundTo15Minutes(new Date())
+    );
+    const [intervalo, setIntervalo] = useState(8);
+    const [periodo, setPeriodo] = useState(7);
+    const [quantidade, setQuantidade] = useState("");
+    const [unidade, setUnidade] = useState("un");
+    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [proximosHorarios, setProximosHorarios] = useState([]);
+
   // Arredonda o horário atual para o múltiplo de 15 minutos mais próximo
   const roundTo15Minutes = (date) => {
     const minutes = date.getMinutes();
@@ -28,21 +43,10 @@ export default function CadastrarRemedioScreen({ navigation }) {
     const now = new Date();
     const roundedNow = roundTo15Minutes(now);
     return (
-      time.getHours() === roundedNow.getHours() && 
+      time.getHours() === roundedNow.getHours() &&
       time.getMinutes() === roundedNow.getMinutes()
     );
   };
-
-  // Estados
-  const [nome, setNome] = useState('');
-  const [horarioInicial, setHorarioInicial] = useState(roundTo15Minutes(new Date()));
-  const [intervalo, setIntervalo] = useState(8);
-  const [periodo, setPeriodo] = useState(7);
-  const [quantidade, setQuantidade] = useState('');
-  const [unidade, setUnidade] = useState('un');
-  const [showTimePicker, setShowTimePicker] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [proximosHorarios, setProximosHorarios] = useState([]);
 
   // Calcula os próximos horários quando algum parâmetro muda
   useEffect(() => {
@@ -54,43 +58,42 @@ export default function CadastrarRemedioScreen({ navigation }) {
     const dataAtual = new Date();
     const horarioBase = roundTo15Minutes(horarioInicial);
 
-    // Calcula para o período especificado
     for (let dia = 0; dia < periodo; dia++) {
       let horarioDia = new Date(horarioBase);
       horarioDia.setDate(horarioBase.getDate() + dia);
-      
-      // Adiciona doses enquanto estiver no mesmo dia
-      while (true) {
-        if (horarioDia > dataAtual) {
+
+      const dosesPorDia = Math.floor(24 / intervalo);
+
+      for (let dose = 0; dose < dosesPorDia; dose++) {
+        const novoHorario = new Date(
+          horarioDia.getTime() + dose * intervalo * 60 * 60 * 1000
+        );
+
+        if (novoHorario > dataAtual) {
           horarios.push({
-            horario: horarioDia.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            data: new Date(horarioDia),
-            tomado: false
+            horario: novoHorario.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            data: new Date(novoHorario),
+            tomado: false,
           });
         }
-        
-        // Avança no intervalo especificado
-        horarioDia = new Date(horarioDia.getTime() + intervalo * 60 * 60 * 1000);
-        horarioDia = roundTo15Minutes(horarioDia);
-        
-        // Se passou para o próximo dia, sai do loop
-        if (horarioDia.getDate() !== horarioBase.getDate() + dia) break;
       }
     }
-    
-    // Ordena por data e limita a 10 horários
+
     const horariosOrdenados = horarios.sort((a, b) => a.data - b.data);
-    setProximosHorarios(horariosOrdenados.slice(0, 10));
+    setProximosHorarios(horariosOrdenados.slice(0, 50));
   };
 
   const handleCadastro = async () => {
     if (!nome || !quantidade) {
-      Alert.alert('Erro', 'Preencha todos os campos obrigatórios');
+      Alert.alert("Erro", "Preencha todos os campos obrigatórios");
       return;
     }
-  
+
     if (isNaN(quantidade) || parseFloat(quantidade) <= 0) {
-      Alert.alert('Erro', 'Quantidade deve ser um número positivo');
+      Alert.alert("Erro", "Quantidade deve ser um número positivo");
       return;
     }
 
@@ -101,281 +104,197 @@ export default function CadastrarRemedioScreen({ navigation }) {
     const novoRemedio = {
       id: Date.now(),
       nome,
-      horarioInicial: horarioInicial.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      horarioInicial: horarioInicial.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       intervalo,
       periodo,
       quantidade: `${quantidade} ${unidade}`,
       proximosHorarios,
-      dataCadastro: new Date().toISOString()
+      dataCadastro: new Date().toISOString(),
     };
 
     const success = await addRemedio(novoRemedio);
     setShowModal(false);
-    
+
     if (success) {
-      Alert.alert('Sucesso', 'Remédio cadastrado com sucesso!', [
-        { text: 'OK', onPress: () => navigation.navigate('Home') }
+      Alert.alert("Sucesso", "Remédio cadastrado com sucesso!", [
+        { text: "OK", onPress: () => navigation.navigate("Home") },
       ]);
     } else {
-      Alert.alert('Erro', 'Não foi possível salvar o remédio');
+      Alert.alert("Erro", "Não foi possível salvar o remédio");
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Nome do Remédio*</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Ex: Paracetamol"
-        value={nome}
-        onChangeText={setNome}
-      />
-
-      <Text style={styles.label}>Horário da Primeira Dose*</Text>
-      <TouchableOpacity 
-        style={styles.timeButton}
-        onPress={() => setShowTimePicker(true)}
-      >
-        <Text style={styles.timeButtonText}>
-          {horarioInicial.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        </Text>
-        <Text style={styles.timeButtonSubtext}>
-          {isCurrentTime(horarioInicial) ? "(Horário atual)" : "(Toque para alterar)"}
-        </Text>
-      </TouchableOpacity>
-
-      {showTimePicker && (
-        <DateTimePicker
-          value={horarioInicial}
-          mode="time"
-          is24Hour={true}
-          display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-          minuteInterval={15}
-          onChange={(event, selectedTime) => {
-            setShowTimePicker(false);
-            if (selectedTime) {
-              setHorarioInicial(roundTo15Minutes(selectedTime));
-            }
-          }}
-        />
-      )}
-
-      <Text style={styles.label}>Intervalo entre Doses (horas)*</Text>
-      <Picker
-        selectedValue={intervalo}
-        style={styles.picker}
-        onValueChange={(itemValue) => setIntervalo(itemValue)}
-      >
-        {[4, 6, 8, 12, 24].map((hora) => (
-          <Picker.Item key={hora} label={`${hora} horas`} value={hora} />
-        ))}
-      </Picker>
-
-      <Text style={styles.label}>Período de Tratamento (dias)*</Text>
-      <Picker
-        selectedValue={periodo}
-        style={styles.picker}
-        onValueChange={(itemValue) => setPeriodo(itemValue)}
-      >
-        {[1, 3, 7, 14, 30].map((dia) => (
-          <Picker.Item key={dia} label={`${dia} dias`} value={dia} />
-        ))}
-      </Picker>
-
-      <Text style={styles.label}>Quantidade*</Text>
-      <View style={styles.quantityContainer}>
+    <ScrollView
+      contentContainerStyle={globalStyles.scrollContainer}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={globalStyles.screenContainer}>
+        <Text style={globalStyles.subtitulo}>Nome do Remédio*</Text>
         <TextInput
-          style={[styles.input, { flex: 2 }]}
-          placeholder="Ex: 2"
-          keyboardType="numeric"
-          value={quantidade}
-          onChangeText={setQuantidade}
+          style={globalStyles.input}
+          placeholder="Ex: Paracetamol"
+          value={nome}
+          onChangeText={setNome}
         />
-        <Picker
-          selectedValue={unidade}
-          style={[styles.picker, { flex: 1 }]}
-          onValueChange={(itemValue) => setUnidade(itemValue)}
+
+        <Text style={globalStyles.subtitulo}>Horário da Primeira Dose*</Text>
+        <TouchableOpacity
+          style={globalStyles.tempoBotao}
+          onPress={() => setShowTimePicker(true)}
         >
-          <Picker.Item label="un" value="un" />
-          <Picker.Item label="ml" value="ml" />
-        </Picker>
-      </View>
-
-      <Text style={styles.label}>Próximas Doses:</Text>
-      <View style={styles.horariosContainer}>
-        {proximosHorarios.map((horario, index) => (
-          <Text key={index} style={styles.horarioText}>
-            {horario.horario}
+          <Text style={globalStyles.textoBotao}>
+            {horarioInicial.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </Text>
-        ))}
-      </View>
+          <Text style={globalStyles.legenda}>
+            {isCurrentTime(horarioInicial)
+              ? "(Horário atual)"
+              : "(Toque para alterar)"}
+          </Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleCadastro}>
-        <Text style={styles.buttonText}>Cadastrar Remédio</Text>
-      </TouchableOpacity>
+        {showTimePicker && (
+          <DateTimePicker
+            value={horarioInicial}
+            mode="time"
+            is24Hour={true}
+            display={Platform.OS === "ios" ? "spinner" : "default"}
+            minuteInterval={15}
+            onChange={(event, selectedTime) => {
+              setShowTimePicker(false);
+              if (selectedTime) {
+                setHorarioInicial(roundTo15Minutes(selectedTime));
+              }
+            }}
+          />
+        )}
 
-      <Modal
-        visible={showModal}
-        transparent={true}
-        animationType="slide"
-        onRequestClose={() => setShowModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Confirmar Cadastro</Text>
-            <Text style={styles.modalText}>Você está prestes a cadastrar:</Text>
-            <Text style={styles.modalDetail}>{nome}</Text>
-            <Text style={styles.modalText}>Horários calculados:</Text>
-            {proximosHorarios.slice(0, 3).map((horario, index) => (
-              <Text key={index} style={styles.modalDetail}>{horario.horario}</Text>
-            ))}
-            {proximosHorarios.length > 3 && (
-              <Text style={styles.modalText}>... e mais {proximosHorarios.length - 3} horários</Text>
-            )}
-            
-            <View style={styles.modalButtons}>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.cancelButton]}
-                onPress={() => setShowModal(false)}
-              >
-                <Text style={styles.modalButtonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={[styles.modalButton, styles.confirmButton]}
-                onPress={confirmarCadastro}
-              >
-                <Text style={styles.modalButtonText}>Confirmar</Text>
-              </TouchableOpacity>
-            </View>
+        <View style={globalStyles.pickerContainer}>
+          <Text style={globalStyles.subtitulo}>
+            Intervalo entre Doses (horas)*
+          </Text>
+          <View style={globalStyles.pickerWrapper}>
+            <Picker
+              selectedValue={intervalo}
+              style={globalStyles.picker}
+              itemStyle={globalStyles.pickerItem}
+              onValueChange={(itemValue) => setIntervalo(itemValue)}
+            >
+              {[4, 6, 8, 12, 24].map((hora) => (
+                <Picker.Item key={hora} label={`${hora} horas`} value={hora} />
+              ))}
+            </Picker>
           </View>
         </View>
-      </Modal>
-    </View>
+
+        <View style={globalStyles.pickerContainer}>
+          <Text style={globalStyles.subtitulo}>
+            Período de Tratamento (dias)*
+          </Text>
+          <View>
+            <TextInput
+              style={[globalStyles.input, { flex: 2 }]}
+              placeholder="Ex: 7"
+              keyboardType="numeric"
+              value={periodo}
+              onChangeText={setPeriodo}
+            />
+          </View>
+        </View>
+
+        <Text style={globalStyles.subtitulo}>Quantidade*</Text>
+        <View style={styles.quantityContainer}>
+          <TextInput
+            style={[globalStyles.input, { flex: 2 }]}
+            placeholder="Ex: 2"
+            keyboardType="numeric"
+            value={quantidade}
+            onChangeText={setQuantidade}
+          />
+          <View style={[globalStyles.pickerWrapper, { flex: 1 }]}>
+            <Picker
+              selectedValue={unidade}
+              style={globalStyles.picker}
+              onValueChange={(itemValue) => setUnidade(itemValue)}
+            >
+              <Picker.Item label="und" value="un" />
+              <Picker.Item label="ml" value="ml" />
+            </Picker>
+          </View>
+        </View>
+
+        <Text style={globalStyles.subtitulo}>Próximas Doses:</Text>
+        <View style={globalStyles.textoContainer}>
+          {proximosHorarios.map((horario, index) => (
+            <Text key={index} style={globalStyles.text}>
+              {horario.horario}
+            </Text>
+          ))}
+        </View>
+
+        <TouchableOpacity style={globalStyles.botao} onPress={handleCadastro}>
+          <Text style={globalStyles.textoBotaoClaro}>Cadastrar Remédio</Text>
+        </TouchableOpacity>
+
+        <Modal
+          visible={showModal}
+          transparent={true}
+          animationType="slide"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <View style={globalStyles.modalContainer}>
+            <View style={globalStyles.modalContent}>
+              <Text style={globalStyles.subtitulo}>Confirmar Cadastro</Text>
+              <Text style={globalStyles.modalText}>
+                Você está prestes a cadastrar:
+              </Text>
+              <Text style={globalStyles.modalDetail}>{nome}</Text>
+              <Text style={globalStyles.modalText}>Horários calculados:</Text>
+              {proximosHorarios.slice(0, 3).map((horario, index) => (
+                <Text key={index} style={globalStyles.modalDetail}>
+                  {horario.horario}
+                </Text>
+              ))}
+              {proximosHorarios.length > 3 && (
+                <Text style={globalStyles.modalText}>
+                  ... e mais {proximosHorarios.length - 3} horários
+                </Text>
+              )}
+
+              <View style={globalStyles.modalButtons}>
+                <TouchableOpacity
+                  style={[globalStyles.modalButton, globalStyles.cancelButton]}
+                  onPress={() => setShowModal(false)}
+                >
+                  <Text style={globalStyles.modalButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[globalStyles.modalButton, globalStyles.confirmButton]}
+                  onPress={confirmarCadastro}
+                >
+                  <Text style={globalStyles.modalButtonText}>Confirmar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+        {/* Modal mantido igual */}
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  label: {
-    fontSize: 16,
-    marginTop: 15,
-    marginBottom: 5,
-    color: '#333',
-    fontWeight: 'bold',
-  },
-  input: {
-    height: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 15,
-    backgroundColor: '#fff',
-    marginBottom: 15,
-  },
-  timeButton: {
-    height: 60,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 8,
-    justifyContent: 'center',
-    paddingHorizontal: 15,
-    marginBottom: 15,
-  },
-  timeButtonText: {
-    fontSize: 18,
-    fontWeight: '500',
-  },
-  timeButtonSubtext: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
-  },
-  picker: {
-    height: 50,
-    width: '100%',
-    marginBottom: 15,
-  },
   quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
     marginBottom: 15,
-  },
-  horariosContainer: {
-    minHeight: 50,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 20,
-  },
-  horarioText: {
-    fontSize: 14,
-    color: '#555',
-  },
-  button: {
-    backgroundColor: 'rgb(115, 12, 12)',
-    padding: 15,
-    borderRadius: 8,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    backgroundColor: 'white',
-    borderRadius: 10,
-    padding: 20,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: 'rgb(115, 12, 12)',
-    textAlign: 'center',
-  },
-  modalText: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
-  modalDetail: {
-    fontSize: 14,
-    color: '#555',
-    marginLeft: 10,
-    marginBottom: 5,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  modalButton: {
-    flex: 1,
-    padding: 10,
-    borderRadius: 5,
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  cancelButton: {
-    backgroundColor: '#ccc',
-  },
-  confirmButton: {
-    backgroundColor: 'rgb(115, 12, 12)',
-  },
-  modalButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
   },
 });
