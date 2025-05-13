@@ -18,12 +18,18 @@ export default function LogInScreen({ navigation }) {
     try {
       const usuariosString = await AsyncStorage.getItem("usuarios");
       const usuarios = usuariosString ? JSON.parse(usuariosString) : [];
-
+  
       const usuario = usuarios.find(
         (u) => u.email === email && u.senha === senha
       );
-
+  
       if (usuario) {
+        // Armazena o usuário logado
+        await AsyncStorage.setItem("usuarioLogado", JSON.stringify({
+          email: usuario.email,
+          nome: usuario.nome
+        }));
+        
         navigation.navigate("Home");
       } else {
         setErro("Email ou senha incorretos");
@@ -32,6 +38,7 @@ export default function LogInScreen({ navigation }) {
       setErro("Erro ao acessar dados");
     }
   };
+
 
   return (
     <View style={globalStyles.screenContainer}>
@@ -57,7 +64,7 @@ export default function LogInScreen({ navigation }) {
       {erro ? <Text style={globalStyles.erro}>{erro}</Text> : null}
 
       <TouchableOpacity style={globalStyles.botao} onPress={handleLogin}>
-        <Text style={globalStyles.textoBotao}>Entrar</Text>
+        <Text style={globalStyles.textoBotaoClaro}>Entrar</Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("Cadastro")}>
