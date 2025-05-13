@@ -35,6 +35,7 @@ export const globalStyles = StyleSheet.create({
   },
   textClaro: {
     color: "#FEF3E2",
+    fontSize: 14,
   },
   textoContainer: {
     minHeight: 50,
@@ -78,6 +79,14 @@ export const globalStyles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 20,
+  },
+  addButton: {
+    backgroundColor: "#FF407D",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   //erro
   erro: {
@@ -171,5 +180,26 @@ export const globalStyles = StyleSheet.create({
   pickerItem: {
     fontSize: 16,
     color: "#FF407D",
+  },
+  // estilo dos cards:
+  card: {
+    backgroundColor: '#FFE3CA',
+    borderRadius: 10,
+    padding: 15,
+    marginBottom: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    paddingBottom: 10,
   },
 });
