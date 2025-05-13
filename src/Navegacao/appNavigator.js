@@ -1,6 +1,6 @@
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
-import HomeScreen from "../screens/HomeScreen";
+import HomeScreen from "../screens/HomeScreen"
 import LogInScreen from "../screens/LogInScreen";
 import CadastroScreen from "../screens/CadastroScreen";
 import Header from "../componentes/Header";
