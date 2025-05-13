@@ -120,9 +120,8 @@ export default function CadastrarRemedioScreen({ navigation }) {
     setShowModal(false);
 
     if (success) {
-      Alert.alert("Sucesso", "Remédio cadastrado com sucesso!", [
-        { text: "OK", onPress: () => navigation.navigate("Home") },
-      ]);
+      Alert.alert("Sucesso", "Remédio cadastrado com sucesso!");
+      navigation.navigate("Home");
     } else {
       Alert.alert("Erro", "Não foi possível salvar o remédio");
     }

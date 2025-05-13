@@ -5,7 +5,6 @@ import {
   FlatList, 
   TouchableOpacity, 
   StyleSheet,
-  ScrollView
 } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { getRemediosUsuario, marcarComoTomado } from '../dados/dadosRemedios';
