@@ -1,66 +1,70 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getAuth } from './AuthService';
-
-const STORAGE_KEY = '@MedOClock:remedios';
-let remedios = [];
-
-export const getRemedios = () => [...remedios];
-
-export const loadRemedios = async () => {
-  try {
-    const user = getAuth().currentUser;
-    if (!user) return [];
-    
-    const userKey = `${STORAGE_KEY}:${user.uid}`;
-    const storedData = await AsyncStorage.getItem(userKey);
-    remedios = storedData ? JSON.parse(storedData) : [];
-    return [...remedios];
-  } catch (error) {
-    console.error('Erro ao carregar remédios:', error);
-    return [];
-  }
-};
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const addRemedio = async (novoRemedio) => {
   try {
-    const user = getAuth().currentUser;
-    if (!user) throw new Error('Usuário não autenticado');
+    // Obter o email do usuário logado
+    const usuarioLogado = await AsyncStorage.getItem("usuarioLogado");
+    if (!usuarioLogado) {
+      console.error("Nenhum usuário logado encontrado");
+      return false;
+    }
+
+    const { email } = JSON.parse(usuarioLogado);
     
-    novoRemedio.userId = user.uid;
-    remedios.push(novoRemedio);
-    await saveRemedios();
+    // Obter a lista de usuários
+    const usuariosString = await AsyncStorage.getItem("usuarios");
+    const usuarios = usuariosString ? JSON.parse(usuariosString) : [];
+    
+    // Encontrar o usuário atual
+    const usuarioIndex = usuarios.findIndex(u => u.email === email);
+    if (usuarioIndex === -1) {
+      console.error("Usuário não encontrado");
+      return false;
+    }
+    
+    // Inicializar a lista de remédios se não existir
+    if (!usuarios[usuarioIndex].remedios) {
+      usuarios[usuarioIndex].remedios = [];
+    }
+    
+    // Adicionar o novo remédio
+    usuarios[usuarioIndex].remedios.push(novoRemedio);
+    
+    // Salvar a lista atualizada
+    await AsyncStorage.setItem("usuarios", JSON.stringify(usuarios));
     return true;
+    
   } catch (error) {
-    console.error('Erro ao adicionar remédio:', error);
+    console.error("Erro ao adicionar remédio:", error);
     return false;
   }
 };
 
-const saveRemedios = async () => {
-  const user = getAuth().currentUser;
-  if (!user) return false;
-  
-  const userKey = `${STORAGE_KEY}:${user.uid}`;
-  await AsyncStorage.setItem(userKey, JSON.stringify(remedios));
-  return true;
+// Função para obter os remédios do usuário atual
+export const getRemediosUsuario = async () => {
+  try {
+    const usuarioLogado = await AsyncStorage.getItem("usuarioLogado");
+    if (!usuarioLogado) return [];
+
+    const { email } = JSON.parse(usuarioLogado);
+    const usuariosString = await AsyncStorage.getItem("usuarios");
+    const usuarios = usuariosString ? JSON.parse(usuariosString) : [];
+    
+    const usuario = usuarios.find(u => u.email === email);
+    return usuario?.remedios || [];
+    
+  } catch (error) {
+    console.error("Erro ao obter remédios:", error);
+    return [];
+  }
 };
 
-export const marcarComoTomado = async (remedioId, horarioIndex) => {
-    try {
-      const remedio = remedios.find(r => r.id === remedioId);
-      if (remedio && remedio.proximosHorarios[horarioIndex]) {
-        remedio.proximosHorarios[horarioIndex].tomado = true;
-        await saveRemedios();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error('Erro ao marcar como tomado:', error);
-      return false;
-    }
-  };
-
-// Carrega ao iniciar se usuário estiver logado
-if (getAuth().currentUser) {
-  loadRemedios();
-}
+export const logout = async () => {
+  try {
+    await AsyncStorage.removeItem("usuarioLogado");
+    return true;
+  } catch (error) {
+    console.error("Erro ao fazer logout:", error);
+    return false;
+  }
+};
