@@ -1,43 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  FlatList, 
-  TouchableOpacity, 
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
   StyleSheet,
-} from 'react-native';
-import { MaterialIcons } from '@expo/vector-icons';
-import { getRemediosUsuario, marcarComoTomado } from '../dados/dadosRemedios';
-import CardRemedio from '../componentes/CardRemedio';
-import { globalStyles } from '../styles/globalStyles';
+} from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
+import {
+  getRemediosUsuario,
+  marcarComoTomado,
+  deletarRemedio,
+} from "../dados/dadosRemedios";
+import CardRemedio from "../componentes/CardRemedio";
+import { globalStyles } from "../styles/globalStyles";
 
-export default function HomeScreen({ navigation }) {
+
+export default function HomeScreen({ navigation}) {
   const [remedios, setRemedios] = useState([]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      carregarRemedios();
-    });
-    return unsubscribe;
-  }, [navigation]);
-
   const carregarRemedios = async () => {
-    const listaRemedios = await getRemediosUsuario();
-    setRemedios(listaRemedios);
+    const lista = await getRemediosUsuario();
+    setRemedios(lista);
   };
 
-  const handleTomarRemedio = async (remedioId) => {
-
-    await carregarRemedios();
+  const handleDeleteRemedio = async (remedioId) => {
+    const success = await deletarRemedio(remedioId);
+    if (success) {
+      await carregarRemedios(); 
+    }
   };
+
+  useEffect(() => {
+    carregarRemedios();
+  }, []);
 
   return (
     <View style={globalStyles.screenContainer}>
       <View style={globalStyles.cardHeader}>
         <Text style={globalStyles.titulo}>Meus Remédios</Text>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={globalStyles.addButton}
-          onPress={() => navigation.navigate('CadastrarRemedio')}
+          onPress={() => navigation.navigate("CadastrarRemedio")}
         >
           <MaterialIcons name="add" size={24} color="white" />
         </TouchableOpacity>
@@ -47,22 +51,24 @@ export default function HomeScreen({ navigation }) {
         <FlatList
           data={remedios}
           renderItem={({ item }) => (
-            <CardRemedio 
-              remedio={item} 
-              onToggle={() => handleTomarRemedio(item.id)}
+            <CardRemedio
+              remedio={item}
+              onDelete={handleDeleteRemedio} // Adicionado aqui
             />
           )}
-          keyExtractor={item => item.id.toString()}
+          keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.list}
         />
       ) : (
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Nenhum remédio cadastrado</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={globalStyles.botao}
-            onPress={() => navigation.navigate('CadastrarRemedio')}
+            onPress={() => navigation.navigate("CadastrarRemedio")}
           >
-            <Text style={globalStyles.textoBotaoClaro}>Adicionar seu primeiro remédio</Text>
+            <Text style={globalStyles.textoBotaoClaro}>
+              Adicionar seu primeiro remédio
+            </Text>
           </TouchableOpacity>
         </View>
       )}
@@ -71,19 +77,18 @@ export default function HomeScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-
   list: {
     paddingBottom: 20,
   },
   emptyContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   emptyText: {
     fontSize: 18,
-    color: '#fff',
+    color: "#fff",
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });

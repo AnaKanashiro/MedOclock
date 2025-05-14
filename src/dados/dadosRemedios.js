@@ -59,12 +59,51 @@ export const getRemediosUsuario = async () => {
   }
 };
 
-export const logout = async () => {
+export const deletarRemedio = async (remedioId) => {
   try {
-    await AsyncStorage.removeItem("usuarioLogado");
+    const usuarioLogado = await AsyncStorage.getItem("usuarioLogado");
+    if (!usuarioLogado) {
+      console.error("Nenhum usuário logado encontrado");
+      return false;
+    }
+
+    const { email } = JSON.parse(usuarioLogado);
+    
+    const usuariosString = await AsyncStorage.getItem("usuarios");
+    const usuarios = usuariosString ? JSON.parse(usuariosString) : [];
+    
+    const usuarioIndex = usuarios.findIndex(u => u.email === email);
+    if (usuarioIndex === -1) {
+      console.error("Usuário não encontrado");
+      return false;
+    }
+    
+    if (!usuarios[usuarioIndex].remedios) {
+      console.error("Nenhum remédio cadastrado");
+      return false;
+    }
+    
+    const remediosAtualizados = usuarios[usuarioIndex].remedios.filter(
+      remedio => remedio.id !== remedioId
+    );
+
+    usuarios[usuarioIndex].remedios = remediosAtualizados;
+  
+    await AsyncStorage.setItem("usuarios", JSON.stringify(usuarios));
     return true;
+    
   } catch (error) {
-    console.error("Erro ao fazer logout:", error);
+    console.error("Erro ao deletar remédio:", error);
     return false;
   }
 };
+
+// export const logout = async () => {
+//   try {
+//     await AsyncStorage.removeItem("usuarioLogado");
+//     return true;
+//   } catch (error) {
+//     console.error("Erro ao fazer logout:", error);
+//     return false;
+//   }
+// };
