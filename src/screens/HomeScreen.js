@@ -21,6 +21,7 @@ export default function HomeScreen({ navigation }) {
   const [remedios, setRemedios] = useState([]);
   const [activeReminder, setActiveReminder] = useState(null);
   const [appState, setAppState] = useState(AppState.currentState);
+  const [lastDismissed, setLastDismissed] = useState(null);
 
   const carregarRemedios = async () => {
     const lista = await getRemediosUsuario();
@@ -34,19 +35,26 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Verifica se há remédios para serem tomados
   const checkReminders = () => {
     const now = new Date();
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
+  
+    if (lastDismissed) {
+      const timeSinceDismissal = now.getTime() - lastDismissed;
+      if (timeSinceDismissal < 5 * 60 * 1000) { 
+        return;
+      } else {
+        setLastDismissed(null);
+      }
+    }
+  
     for (const remedio of remedios) {
       for (const dose of remedio.proximosHorarios) {
         if (!dose.tomado) {
           const [hours, minutes] = dose.horario.split(':').map(Number);
           const doseMinutes = hours * 60 + minutes;
-          
-          // Verifica se faltam 5 minutos ou se já passou do horário
-          if (Math.abs(doseMinutes - currentMinutes) <= 5 || doseMinutes <= currentMinutes) {
+
+          if ((Math.abs(doseMinutes - currentMinutes) <= 5) && doseMinutes >= currentMinutes) {
             setActiveReminder({
               remedio,
               horario: dose.horario,
@@ -67,13 +75,13 @@ export default function HomeScreen({ navigation }) {
         activeReminder.horario
       );
       if (success) {
+        setLastDismissed(new Date().getTime()); 
         await carregarRemedios();
         setActiveReminder(null);
       }
     }
   };
 
-  // Verifica os lembretes quando o app é aberto ou quando o estado muda
   useEffect(() => {
     const subscription = AppState.addEventListener('change', nextAppState => {
       setAppState(nextAppState);
@@ -87,12 +95,10 @@ export default function HomeScreen({ navigation }) {
     };
   }, []);
 
-  // Verifica os lembretes quando os remédios são carregados ou a cada minuto
   useEffect(() => {
     if (remedios.length > 0) {
       checkReminders();
       
-      // Verifica a cada minuto
       const interval = setInterval(() => {
         checkReminders();
       }, 60000);

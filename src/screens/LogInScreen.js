@@ -24,7 +24,7 @@ export default function LogInScreen({ navigation }) {
       );
   
       if (usuario) {
-        // Armazena o usuário logado
+      
         await AsyncStorage.setItem("usuarioLogado", JSON.stringify({
           email: usuario.email,
           nome: usuario.nome

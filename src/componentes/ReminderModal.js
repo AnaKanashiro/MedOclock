@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 15,
     color: '#FF407D',
@@ -70,17 +70,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   remedioName: {
-    fontSize: 18,
+    fontSize: 25,
     fontWeight: 'bold',
     marginBottom: 5,
   },
   remedioDose: {
-    fontSize: 16,
+    fontSize: 20,
     color: '#555',
     marginBottom: 5,
   },
   remedioTime: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: 'bold',
     color: '#FF407D',
     marginBottom: 10,

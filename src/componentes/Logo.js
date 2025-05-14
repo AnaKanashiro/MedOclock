@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
-import logo from '../assets/logo.png';
-import logo2 from '../assets/logo2.png';
+
 import logo3 from '../assets/logo3.png';
 
 function Logo() {

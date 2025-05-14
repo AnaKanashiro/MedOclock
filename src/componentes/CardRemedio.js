@@ -1,10 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { MaterialIcons } from "@expo/vector-icons"; // Certifique-se de ter instalado @expo/vector-icons
+import { MaterialIcons } from "@expo/vector-icons"; 
 import { globalStyles } from "../styles/globalStyles";
 
 export default function CardRemedio({ remedio, onDelete }) {
-  // Encontra a próxima dose não tomada
   const proximaDose = remedio.proximosHorarios.find((dose) => !dose.tomado);
 
   const handleDelete = () => {
@@ -31,7 +30,6 @@ export default function CardRemedio({ remedio, onDelete }) {
         <Text style={globalStyles.textoBotao}>{remedio.nome}</Text>
 
         <View style={styles.actionsContainer}>
-          {/* Ícone de deletar */}
           <TouchableOpacity onPress={handleDelete} style={styles.deleteButton}>
             <MaterialIcons name="delete" size={24} color="#FF5252" />
           </TouchableOpacity>
