@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
-import AppNavigator from './Navigacao/appNavigator.js';
+import AppNavigator from './src/Navegacao/appNavigator';
 
 export default function App() {
   return (

@@ -106,7 +106,7 @@ export default function CadastroScreen({ navigation }) {
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate("LogIn")}>
-        <Text style={styles.link}>Já tem conta? Faça login</Text>
+        <Text style={globalStyles.link}>Já tem conta? Faça login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -117,11 +117,6 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     flex: 1,
     fontSize: 14,
-  },
-  link: {
-    color: "#FFCAD4",
-    textAlign: "center",
-    marginTop: 20,
   },
   termosContainer: {
     flexDirection: "row",
@@ -140,6 +135,6 @@ const styles = StyleSheet.create({
     color: "#FF407D",
     textDecorationLine: "underline",
     fontWeight: "bold",
-    fontSize: 14,
+    fontSize: 18,
   },
 });

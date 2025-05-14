@@ -16,7 +16,7 @@ import { addRemedio } from "../dados/dadosRemedios";
 import { globalStyles } from "../styles/globalStyles";
 
 export default function CadastrarRemedioScreen({ navigation }) {
-  // Arredonda o horário atual para o múltiplo de 15 minutos mais próximo
+
   const roundTo15Minutes = (date) => {
     const minutes = date.getMinutes();
     const roundedMinutes = Math.floor(minutes / 15) * 15;
@@ -25,7 +25,6 @@ export default function CadastrarRemedioScreen({ navigation }) {
     return newDate;
   };
 
-  // Verifica se o horário é igual ao horário atual arredondado
   const isCurrentTime = (time) => {
     const now = new Date();
     const roundedNow = roundTo15Minutes(now);
@@ -48,7 +47,7 @@ export default function CadastrarRemedioScreen({ navigation }) {
   const [showModal, setShowModal] = useState(false);
   const [proximosHorarios, setProximosHorarios] = useState([]);
 
-  // Calcula os próximos horários quando algum parâmetro muda
+  // Calcula os próximos horários quando algum parâmetro muda.
   useEffect(() => {
     calcularHorarios();
   }, [horarioInicial, intervalo, periodo]);
@@ -58,7 +57,6 @@ export default function CadastrarRemedioScreen({ navigation }) {
     const dataAtual = new Date();
     const horarioBase = roundTo15Minutes(horarioInicial);
 
-    // Calcula para o período especificado
     for (let dia = 0; dia < periodo; dia++) {
       let horarioDia = new Date(horarioBase);
       horarioDia.setDate(horarioBase.getDate() + dia);
@@ -100,7 +98,8 @@ export default function CadastrarRemedioScreen({ navigation }) {
 
     setShowModal(true);
   };
-
+ 
+  // resposavel por cadastrar o remedio na home.
   const confirmarCadastro = async () => {
     const novoRemedio = {
       id: Date.now(),
@@ -120,9 +119,8 @@ export default function CadastrarRemedioScreen({ navigation }) {
     setShowModal(false);
 
     if (success) {
-      Alert.alert("Sucesso", "Remédio cadastrado com sucesso!", [
-        { text: "OK", onPress: () => navigation.navigate("Home") },
-      ]);
+      Alert.alert("Sucesso", "Remédio cadastrado com sucesso!");
+      navigation.navigate("Home");
     } else {
       Alert.alert("Erro", "Não foi possível salvar o remédio");
     }
