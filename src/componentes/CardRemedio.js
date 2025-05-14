@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   infoText: {
     marginLeft: 8,
-    fontSize: 16,
+    fontSize: 20,
     color: "#555",
   },
 });

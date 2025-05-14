@@ -98,6 +98,36 @@ export const deletarRemedio = async (remedioId) => {
   }
 };
 
+// Adicione esta função para marcar o remédio como tomado
+export const marcarComoTomado = async (remedioId, horarioTomado) => {
+  try {
+    const usuarioLogado = await AsyncStorage.getItem("usuarioLogado");
+    if (!usuarioLogado) return false;
+
+    const { email } = JSON.parse(usuarioLogado);
+    const usuariosString = await AsyncStorage.getItem("usuarios");
+    const usuarios = usuariosString ? JSON.parse(usuariosString) : [];
+    
+    const usuarioIndex = usuarios.findIndex(u => u.email === email);
+    if (usuarioIndex === -1) return false;
+
+    const remedioIndex = usuarios[usuarioIndex].remedios.findIndex(r => r.id === remedioId);
+    if (remedioIndex === -1) return false;
+
+    const proximosHorarios = usuarios[usuarioIndex].remedios[remedioIndex].proximosHorarios;
+    const doseIndex = proximosHorarios.findIndex(d => d.horario === horarioTomado);
+    if (doseIndex !== -1) {
+      proximosHorarios[doseIndex].tomado = true;
+    }
+
+    await AsyncStorage.setItem("usuarios", JSON.stringify(usuarios));
+    return true;
+  } catch (error) {
+    console.error("Erro ao marcar remédio como tomado:", error);
+    return false;
+  }
+};
+
 // export const logout = async () => {
 //   try {
 //     await AsyncStorage.removeItem("usuarioLogado");

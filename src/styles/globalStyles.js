@@ -15,7 +15,7 @@ export const globalStyles = StyleSheet.create({
   },
   // Textos
   titulo: {
-    fontSize: 30,
+    fontSize: 40,
     fontWeight: "bold",
     marginBottom: 20,
     marginTop: 20,
@@ -23,7 +23,7 @@ export const globalStyles = StyleSheet.create({
     color: "#FFCAD4",
   },
   subtitulo: {
-    fontSize: 16,
+    fontSize: 25,
     marginTop: 15,
     marginBottom: 5,
     color: "#FF407D",
@@ -31,11 +31,11 @@ export const globalStyles = StyleSheet.create({
   },
   text: {
     color: "#FF407D",
-    fontSize: 14,
+    fontSize: 20,
   },
   textClaro: {
     color: "#FEF3E2",
-    fontSize: 14,
+    fontSize: 20,
   },
   textoContainer: {
     minHeight: 50,
@@ -46,9 +46,22 @@ export const globalStyles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#FFE3CA",
   },
+  lista: {
+    fontSize: 20,
+    marginLeft: 10,
+    lineHeight: 22,
+    color: "#FFE3CA", 
+    fontWeight: "bold",
+  },
+  link: {
+    color: "#FFCAD4",
+    textAlign: "center",
+    marginTop: 20,
+    fontSize: 17,
+  },
   //input
   input: {
-    height: 50,
+    height: 60,
     borderColor: "#FFE3CA",
     backgroundColor: "#FFE3CA",
     borderWidth: 1,
@@ -56,6 +69,7 @@ export const globalStyles = StyleSheet.create({
     color: "#FF407D",
     marginBottom: 20,
     padding: 10,
+fontSize: 20,
   },
   // botao
   botao: {
@@ -74,11 +88,13 @@ export const globalStyles = StyleSheet.create({
     color: "#FF407D",
     fontWeight: "bold",
     fontSize: 20,
+    margin: 5,
   },
   textoBotaoClaro: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 20,
+    margin: 5,
   },
   addButton: {
     backgroundColor: "#FF407D",
@@ -129,11 +145,11 @@ export const globalStyles = StyleSheet.create({
       textAlign: "center",
     },
     modalText: {
-      fontSize: 16,
+      fontSize: 18,
       marginVertical: 5,
     },
     modalDetail: {
-      fontSize: 14,
+      fontSize: 20,
       color: "#555",
       marginLeft: 10,
       marginBottom: 5,
@@ -159,6 +175,7 @@ export const globalStyles = StyleSheet.create({
     modalButtonText: {
       color: "white",
       fontWeight: "bold",
+      fontSize: 20,
     },
       //  Area picker refere-se ao estilo de seleçao
   pickerContainer: {
@@ -178,7 +195,7 @@ export const globalStyles = StyleSheet.create({
     color: "#FF407D",
   },
   pickerItem: {
-    fontSize: 16,
+    fontSize: 20,
     color: "#FF407D",
   },
   // estilo dos cards:

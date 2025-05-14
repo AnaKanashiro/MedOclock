@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
         margin: 20,
     },
     logoText: {
-        fontSize: 35,
+        fontSize: 40,
         color: '#FF407D',
     },
     boldText: {
